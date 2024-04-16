@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ProductDoc } from "../types/product";
+import { Product, ProductDoc } from "../types/product";
 import { initProducts } from "../data-init";
 import { initializeApp, FirebaseApp } from "firebase/app";
 import { getFirestore, Firestore, collection, getDocs, addDoc } from "firebase/firestore";
@@ -69,6 +69,21 @@ export const useProductStore = defineStore("ProductStore", {
     filterByRating(minRating: number){
       return this.products.filter(
         product => product.data.rating >= minRating);
+    },
+    async addItemToFirestore(item: ProductDoc) {
+      // Add the new item to Firestore
+      const firebaseConfig = {
+        // Firebase configuration...
+      };
+      const myapp: FirebaseApp = initializeApp(firebaseConfig);
+      const db: Firestore = getFirestore(myapp);
+  
+      try {
+        const productsCollected = collection(db, 'products');
+        await addDoc(productsCollected, item);
+      } catch (error) {
+        console.error("Error adding document: ", error);
+      }
     }
   }    
 });

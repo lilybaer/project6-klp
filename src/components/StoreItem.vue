@@ -23,12 +23,33 @@
 
         <!-- Product Description -->
         <v-card-text>{{ product.data.description }}</v-card-text>
+        <v-btn color="primary" @click="createItem(product)">Add to Store</v-btn>
+
       </v-card>
     </template>
   </div>
 </template>
 <script lang="ts" setup>
-import { ProductDoc } from '../types/product.ts'; 
+import {ProductDoc } from '../types/product.ts'; 
+import { useProductStore } from '../stores/ProductStore.ts';
+
+const createItem = async (product: ProductDoc) => {
+  // Confirmation prompt
+  const confirmed = confirm("Are you sure you want to add this item?");
+  //console.log(product.data.name);
+  
+  if (confirmed) {
+    // Add item to Firestore
+    
+    await addNewItemToFirestore(product);
+  }
+};
+
+const addNewItemToFirestore = async (item: ProductDoc) => {
+  // Call the action from the store to add the new item
+  console.log(item.data.name);
+  await useProductStore().addItemToFirestore(item);
+};
 
 const products = defineProps<{
   product: ProductDoc;
