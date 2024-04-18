@@ -23,8 +23,9 @@
 
         <!-- Product Description -->
         <v-card-text>{{ product.data.description }}</v-card-text>
-        <v-btn color="primary" @click="createItem(product)">Add to Store</v-btn>
-
+        <v-btn color="primary" @click="createItem(product)">Create</v-btn>
+        <v-btn color="primary" @click="deleteItem(product)">Delete</v-btn>
+        <v-btn color="primary" @click="modifyItem(product)">Modify</v-btn>
       </v-card>
     </template>
   </div>
@@ -35,18 +36,26 @@ import { useProductStore } from '../stores/ProductStore.ts';
 
 const createItem = async (product: ProductDoc) => {
   // Confirmation prompt
+  console.log('in create item');
   const confirmed = confirm("Are you sure you want to add this item?");
-  //console.log(product.data.name);
+  console.log(product.data.name);
   
   if (confirmed) {
     // Add item to Firestore
+    console.log('here');
     
     await addNewItemToFirestore(product);
   }
 };
 
+const deleteItem = async (product: ProductDoc) => {}
+
+const modifyItem = async (product: ProductDoc) => {}
+
+
 const addNewItemToFirestore = async (item: ProductDoc) => {
   // Call the action from the store to add the new item
+  console.log('in add ite to firetore');
   console.log(item.data.name);
   await useProductStore().addItemToFirestore(item);
 };
