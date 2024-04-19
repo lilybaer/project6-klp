@@ -1,67 +1,125 @@
 <template>
   <div>
-    <template v-for="product in products">
-      <v-card>
-        <!-- Product Name -->
-        <v-card-title>{{ product.data.name }}</v-card-title>
+    <v-card class="mb-4">
+      <!-- Product Image -->
+      <v-img :src="product.data.image" max-height="300"></v-img>
 
-        <!-- Rating, Price, Stock in the same row -->
+      <!-- Card Content -->
+      <v-card-text>
+        <!-- Product Name -->
+        <v-card-title class="text-h5">
+          <!-- Conditional rendering of product name -->
+          <template v-if="editing">
+            <!-- Render input field when editing is true -->
+            <v-text-field v-model="editedProduct.data.name" label="Name"></v-text-field>
+          </template>
+          <template v-else>
+            <!-- Render static text when not editing -->
+            {{ product.data.name }}
+          </template>
+        </v-card-title>
+
+        <!-- Rating and Price -->
         <v-card-subtitle class="d-flex align-center">
           <!-- Rating as Stars -->
-          <v-rating v-model="product.data.rating" half-increments disabled></v-rating>
+          <v-rating :value="editing ? editedProduct.data.rating : product.data.rating" 
+                    half-increments disabled size="15"
+                    @input="onRatingChange">
+          </v-rating>
 
           <!-- Price -->
-          <span class="ml-2 text-h6 font-weight-bold">Price: ${{ product.data.price }}</span>
+          <template v-if="!editing">
+            <span class="ml-2 text-body-2 font-weight-bold mr-4">Price: ${{ product.data.price }}</span>
+          </template>
+          <template v-else>
+            <v-text-field v-model.number="editedProduct.data.price" label="Price" type="number"></v-text-field>
+          </template>
 
           <!-- Stock -->
-          <span class="ml-2" v-if="product.data.stock > 0">In Stock: {{ product.data.stock }}</span>
-          <span v-else class="ml-2 red--text">Out of Stock</span>
+          <template v-if="!editing">
+            <span class="text-body-2" v-if="product.data.stock > 0">Stock: {{ product.data.stock }}</span>
+          </template>
+          <template v-else>
+            <v-text-field v-model.number="editedProduct.data.stock" label="Stock" type="number"></v-text-field>
+          </template>
         </v-card-subtitle>
 
-        <!-- Product Photo -->
-        <v-img :src="product.data.image" height="300"></v-img>
-
         <!-- Product Description -->
-        <v-card-text>{{ product.data.description }}</v-card-text>
-        <v-btn color="primary" @click="createItem(product)">Create</v-btn>
-        <v-btn color="primary" @click="deleteItem(product)">Delete</v-btn>
-        <v-btn color="primary" @click="modifyItem(product)">Modify</v-btn>
-      </v-card>
-    </template>
+        <v-card-text class="mt-2">
+          <!-- Conditional rendering of product description -->
+          <template v-if="editing">
+            <!-- Render textarea when editing is true -->
+            <v-textarea v-model="editedProduct.data.description" label="Description"></v-textarea>
+          </template>
+          <template v-else>
+            <!-- Render static text when not editing -->
+            {{ product.data.description }}
+          </template>
+        </v-card-text>
+
+        <!-- Action Buttons -->
+        <v-card-actions>
+          <template v-if="!editing">
+            <!-- Display action buttons when not editing -->
+            <v-btn color="primary" @click="createItem(product)">Create</v-btn>
+            <v-btn color="primary" @click="deleteItem(product)">Delete</v-btn>
+            <v-btn color="primary" @click="toggleEdit">Modify</v-btn>
+          </template>
+          <template v-else>
+            <!-- Display edit mode buttons when editing -->
+            <v-btn color="success" @click="updateItem">Update</v-btn>
+            <v-btn color="error" @click="cancelEdit">Cancel</v-btn>
+          </template>
+        </v-card-actions>
+      </v-card-text>
+    </v-card>
   </div>
 </template>
-<script lang="ts" setup>
-import {ProductDoc } from '../types/product.ts'; 
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import { ProductDoc } from '../types/product.ts';
 import { useProductStore } from '../stores/ProductStore.ts';
 
+// Define reactive variables
+const editing = ref(false);
+const editedProduct = ref<ProductDoc>({ ...props.product });
+
+// Define component methods
 const createItem = async (product: ProductDoc) => {
-  // Confirmation prompt
-  console.log('in create item');
   const confirmed = confirm("Are you sure you want to add this item?");
-  console.log(product.data.name);
-  
   if (confirmed) {
-    // Add item to Firestore
-    console.log('here');
-    
-    await addNewItemToFirestore(product);
+    await useProductStore().addItemToFirestore(product);
   }
 };
 
-const deleteItem = async (product: ProductDoc) => {}
-
-const modifyItem = async (product: ProductDoc) => {}
-
-
-const addNewItemToFirestore = async (item: ProductDoc) => {
-  // Call the action from the store to add the new item
-  console.log('in add ite to firetore');
-  console.log(item.data.name);
-  await useProductStore().addItemToFirestore(item);
+const deleteItem = async (product: ProductDoc) => {
+  const confirmed = confirm("Are you sure you want to delete this item?");
+  if (confirmed) {
+    await useProductStore().removeItemFromFirestore(product);
+  }
 };
 
-const products = defineProps<{
+const toggleEdit = () => {
+  editing.value = true;
+};
+
+const cancelEdit = () => {
+  editing.value = false;
+  editedProduct.value = { ...props.product };
+};
+
+const updateItem = async () => {
+  const confirmed = confirm("Are you sure you want to update this item?");
+  if (confirmed) {
+    await useProductStore().updateItemInFirestore(editedProduct.value);
+    editing.value = false;
+  }
+};
+
+// Define component props
+const props = defineProps<{
   product: ProductDoc;
 }>();
-
 </script>
+

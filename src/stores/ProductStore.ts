@@ -84,6 +84,45 @@ export const useProductStore = defineStore("ProductStore", {
       } catch (error) {
         console.error("Error adding document: ", error);
       }
-    }
-  }    
+    },
+    async removeItemFromFirestore(item: ProductDoc) {
+      const firebaseConfig = {
+        // Firebase configuration...
+      };
+      const myapp: FirebaseApp = initializeApp(firebaseConfig);
+      const db: Firestore = getFirestore(myapp);
+
+      try {
+        const productsCollected = collection(db, "products");
+        const productDoc = doc(db, "products", item.id);
+        await deleteDoc(productDoc);
+        this.products = this.products.filter((product) => product.id !== item.id);
+      } catch (error) {
+        console.error("Error deleting document: ", error);
+      }
+    },
+    async updateItemInFirestore(updatedProduct: ProductDoc) {
+      const firebaseConfig = {
+        // Firebase configuration...
+      };
+
+      const myapp: FirebaseApp = initializeApp(firebaseConfig);
+      const db: Firestore = getFirestore(myapp);
+
+      try {
+        const productDoc = doc(db, "products", updatedProduct.id);
+        await updateDoc(productDoc, {
+          name: updatedProduct.data.name,
+          description: updatedProduct.data.description,
+          price: updatedProduct.data.price,
+          rating: updatedProduct.data.rating,
+          stock: updatedProduct.data.stock,
+          image: updatedProduct.data.image,
+          category: updatedProduct.data.category,
+        });
+      } catch (error) {
+        console.error("Error updating document: ", error);
+      }
+    },      
+  },    
 });
