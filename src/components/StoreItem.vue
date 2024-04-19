@@ -11,7 +11,10 @@
           <!-- Conditional rendering of product name -->
           <template v-if="editing">
             <!-- Render input field when editing is true -->
-            <v-text-field v-model="editedProduct.data.name" label="Name"></v-text-field>
+            <v-text-field
+              v-model="editedProduct.data.name"
+              label="Name"
+            ></v-text-field>
           </template>
           <template v-else>
             <!-- Render static text when not editing -->
@@ -22,25 +25,41 @@
         <!-- Rating and Price -->
         <v-card-subtitle class="d-flex align-center">
           <!-- Rating as Stars -->
-          <v-rating :value="editing ? editedProduct.data.rating : product.data.rating" 
-                    half-increments disabled size="15"
-                    @input="onRatingChange">
+          <v-rating
+            :value="editing ? editedProduct.data.rating : product.data.rating"
+            half-increments
+            disabled
+            size="15"
+            @input="onRatingChange"
+          >
           </v-rating>
 
           <!-- Price -->
           <template v-if="!editing">
-            <span class="ml-2 text-body-2 font-weight-bold mr-4">Price: ${{ product.data.price }}</span>
+            <span class="ml-2 text-body-2 font-weight-bold mr-4"
+              >Price: ${{ product.data.price }}</span
+            >
           </template>
           <template v-else>
-            <v-text-field v-model.number="editedProduct.data.price" label="Price" type="number"></v-text-field>
+            <v-text-field
+              v-model.number="editedProduct.data.price"
+              label="Price"
+              type="number"
+            ></v-text-field>
           </template>
 
           <!-- Stock -->
           <template v-if="!editing">
-            <span class="text-body-2" v-if="product.data.stock > 0">Stock: {{ product.data.stock }}</span>
+            <span class="text-body-2" v-if="product.data.stock > 0"
+              >Stock: {{ product.data.stock }}</span
+            >
           </template>
           <template v-else>
-            <v-text-field v-model.number="editedProduct.data.stock" label="Stock" type="number"></v-text-field>
+            <v-text-field
+              v-model.number="editedProduct.data.stock"
+              label="Stock"
+              type="number"
+            ></v-text-field>
           </template>
         </v-card-subtitle>
 
@@ -49,7 +68,10 @@
           <!-- Conditional rendering of product description -->
           <template v-if="editing">
             <!-- Render textarea when editing is true -->
-            <v-textarea v-model="editedProduct.data.description" label="Description"></v-textarea>
+            <v-textarea
+              v-model="editedProduct.data.description"
+              label="Description"
+            ></v-textarea>
           </template>
           <template v-else>
             <!-- Render static text when not editing -->
@@ -77,13 +99,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { ProductDoc } from '../types/product.ts';
-import { useProductStore } from '../stores/ProductStore.ts';
+import { ref } from "vue";
+import { ProductDoc } from "../types/product.ts";
+import { useProductStore } from "../stores/ProductStore.ts";
 
+const productStore = useProductStore();
+// Define component props
+const props = defineProps<{
+  product: ProductDoc;
+}>();
 // Define reactive variables
 const editing = ref(false);
-const editedProduct = ref<ProductDoc>({ ...props.product });
+const editedProduct = ref<ProductDoc>(props.product);
 
 // Define component methods
 const createItem = async (product: ProductDoc) => {
@@ -112,14 +139,8 @@ const cancelEdit = () => {
 const updateItem = async () => {
   const confirmed = confirm("Are you sure you want to update this item?");
   if (confirmed) {
-    await useProductStore().updateItemInFirestore(editedProduct.value);
+    await productStore.updateItemInFirestore(editedProduct.value);
     editing.value = false;
   }
 };
-
-// Define component props
-const props = defineProps<{
-  product: ProductDoc;
-}>();
 </script>
-
