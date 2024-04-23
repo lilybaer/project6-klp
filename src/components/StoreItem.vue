@@ -83,7 +83,6 @@
         <v-card-actions>
           <template v-if="!editing">
             <!-- Display action buttons when not editing -->
-            <v-btn color="primary" @click="createItem(product)">Create</v-btn>
             <v-btn color="primary" @click="deleteItem(product)">Delete</v-btn>
             <v-btn color="primary" @click="toggleEdit">Modify</v-btn>
           </template>
@@ -120,10 +119,10 @@ const createItem = async (product: ProductDoc) => {
   }
 };
 
-const deleteItem = async (product: ProductDoc) => {
+const deleteItem = async (productId: string) => {
   const confirmed = confirm("Are you sure you want to delete this item?");
   if (confirmed) {
-    await useProductStore().removeItemFromFirestore(product);
+    await useProductStore().removeItemFromFirestore(productId);
   }
 };
 

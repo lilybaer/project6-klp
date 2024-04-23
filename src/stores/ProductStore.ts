@@ -56,30 +56,19 @@ export const useProductStore = defineStore("ProductStore", {
         (product) => product.data.rating >= minRating
       );
     },
-    async addItemToFirestore(item: ProductDoc) {
-      // Add the new item to Firestore
-      const firebaseConfig = {
-        // Firebase configuration...
-      };
-      const myapp: FirebaseApp = initializeApp(firebaseConfig);
-      const db: Firestore = getFirestore(myapp);
-
+    async addItemToFirestore(newProduct: ProductDoc) {
       try {
-        const productsCollected = collection(db, "products");
-        await addDoc(productsCollected, item);
+        const productsCollection = collection(db, "products");
+        const docRef = await addDoc(productsCollection, newProduct.data);
+        // Update the local state with the added product (optional)
+        const addedProduct = { id: docRef.id, data: newProduct.data };
+        this.products.push(addedProduct);
       } catch (error) {
         console.error("Error adding document: ", error);
       }
     },
     async removeItemFromFirestore(item: ProductDoc) {
-      const firebaseConfig = {
-        // Firebase configuration...
-      };
-      const myapp: FirebaseApp = initializeApp(firebaseConfig);
-      const db: Firestore = getFirestore(myapp);
-
       try {
-        const productsCollected = collection(db, "products");
         const productDoc = doc(db, "products", item.id);
         await deleteDoc(productDoc);
         this.products = this.products.filter(
@@ -93,6 +82,9 @@ export const useProductStore = defineStore("ProductStore", {
       try {
         const productDoc = doc(db, "products", updatedProduct.id);
         await updateDoc(productDoc, updatedProduct.data);
+        if (index !== -1) {
+          this.products[index].data = updatedProduct.data;
+        }
       } catch (error) {
         console.error("Error updating document: ", error);
       }

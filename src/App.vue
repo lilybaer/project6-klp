@@ -6,7 +6,27 @@
         <v-icon>{{ link.icon }}</v-icon>
         {{ link.text }}
       </v-btn>
+      <v-btn color="primary" @click="addProduct">Add Product</v-btn>
     </v-app-bar>
+    <v-dialog v-model="showDialog" max-width="500px">
+      <template #activator="{ on }">
+        <v-card>
+          <v-card-title>Add New Product</v-card-title>
+          <v-card-text v-if="showDialog">
+            <!-- Form fields for adding a new product -->
+            <v-text-field v-model="newProduct.data.name" label="Name"></v-text-field>
+            <v-textarea v-model="newProduct.data.description" label="Description"></v-textarea>
+            <v-text-field v-model.number="newProduct.data.price" label="Price" type="number"></v-text-field>
+            <v-text-field v-model.number="newProduct.data.rating" label="Rating" type="number"></v-text-field>
+            <v-text-field v-model.number="newProduct.data.stock" label="Stock" type="number"></v-text-field>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn color="primary" @click="saveProduct">Save</v-btn>
+            <v-btn @click="showDialog = false">Cancel</v-btn>
+          </v-card-actions>
+        </v-card>
+      </template>
+    </v-dialog>
     <v-main class="bg-blue-lighten-5">
       <router-view v-slot="{ Component }">
         <transition name="shrink-explode">
@@ -23,6 +43,8 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
+import { useProductStore } from "./stores/ProductStore";
+import { ProductDoc } from "./types/product";
 
 const links = ref([
   { text: "Home", to: "/", icon: "mdi-home" },
@@ -31,4 +53,36 @@ const links = ref([
   { text: "Groceries", to: "/groceries", icon: "mdi-cart" },
   { text: "Best Seller", to: "/bestseller", icon: "mdi-cash-register" },
 ]);
+const productStore = useProductStore();
+
+const showDialog = ref(false);
+const newProduct: ProductDoc = {
+  id: "", 
+  data: {
+    name: "",
+    description: "",
+    price: 0,
+    rating: 0,
+    stock: 0,
+  },
+};
+
+const addProduct = async () => {
+  showDialog.value = true; // Open the dialog
+};
+
+const saveProduct = async () => {
+  const confirmed = confirm("Are you sure you want to add this item?");
+  if (confirmed) {
+    await productStore.addItemToFirestore(newProduct);
+    showDialog.value = false; // Close the dialog after adding
+    // Reset newProduct object for next use
+    newProduct.data.name = "";
+    newProduct.data.description = "";
+    newProduct.data.price = 0;
+    newProduct.data.rating = 0;
+    newProduct.data.stock = 0;
+  }
+};
+
 </script>
