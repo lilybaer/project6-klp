@@ -121,8 +121,8 @@ const createItem = async (product: ProductDoc) => {
 };
 
 const deleteItem = async () => {
-  const confirmed = confirm("Are you sure you want to delete this item?");
-  if (confirmed) {
+  
+  if (confirm("Are you sure you want to delete this item?")) {
     productStore.removeItemFromFirestore(props.product.id);
   }
 };

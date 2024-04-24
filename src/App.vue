@@ -9,23 +9,28 @@
       <v-btn color="primary" @click="addProduct">Add Product</v-btn>
     </v-app-bar>
     <v-dialog v-model="showDialog" max-width="500px">
-      <template #activator="{ on }">
         <v-card>
           <v-card-title>Add New Product</v-card-title>
           <v-card-text v-if="showDialog">
             <!-- Form fields for adding a new product -->
-            <v-text-field v-model="newProduct.data.name" label="Name"></v-text-field>
-            <v-textarea v-model="newProduct.data.description" label="Description"></v-textarea>
-            <v-text-field v-model.number="newProduct.data.price" label="Price" type="number"></v-text-field>
-            <v-text-field v-model.number="newProduct.data.rating" label="Rating" type="number"></v-text-field>
-            <v-text-field v-model.number="newProduct.data.stock" label="Stock" type="number"></v-text-field>
+            <v-text-field v-model="newProduct.name" label="Name"></v-text-field>
+            <v-text-field v-model="newProduct.image" label="Image URL"></v-text-field>
+            <v-textarea v-model="newProduct.description" label="Description"></v-textarea>
+            <v-text-field v-model.number="newProduct.price" label="Price" type="number"></v-text-field>
+            <v-text-field v-model.number="newProduct.rating" label="Rating" type="number"></v-text-field>
+            <v-text-field v-model.number="newProduct.stock" label="Stock" type="number"></v-text-field>
           </v-card-text>
+          <v-select
+            v-model="newProduct.category"
+            :items="categories"
+            label="Category"
+            required
+          ></v-select>
           <v-card-actions>
             <v-btn color="primary" @click="saveProduct">Save</v-btn>
             <v-btn @click="showDialog = false">Cancel</v-btn>
           </v-card-actions>
         </v-card>
-      </template>
     </v-dialog>
     <v-main class="bg-blue-lighten-5">
       <router-view v-slot="{ Component }">
@@ -42,9 +47,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from "vue";
-import { useProductStore } from "./stores/ProductStore";
-import { ProductDoc } from "./types/product";
+import { ref } from "vue";
+import db from "./firestore";
+import { collection, doc, setDoc } from 'firebase/firestore';
 
 const links = ref([
   { text: "Home", to: "/", icon: "mdi-home" },
@@ -53,18 +58,18 @@ const links = ref([
   { text: "Groceries", to: "/groceries", icon: "mdi-cart" },
   { text: "Best Seller", to: "/bestseller", icon: "mdi-cash-register" },
 ]);
-const productStore = useProductStore();
 
+const categories = ['Groceries', 'Electronics', 'Clothing'];
 const showDialog = ref(false);
-const newProduct = reactive<ProductDoc>({
-  id: "", 
-  data: {
-    name: "",
-    description: "",
-    price: 0,
-    rating: 0,
-    stock: 0,
-  },
+
+const newProduct = ref({
+  name: '',
+  image: '', 
+  description: '',
+  price: 0,
+  rating: 0, 
+  stock: 0,
+  category: '' 
 });
 
 const addProduct = async () => {
@@ -74,14 +79,24 @@ const addProduct = async () => {
 const saveProduct = async () => {
   const confirmed = confirm("Are you sure you want to add this item?");
   if (confirmed) {
-    await productStore.addItemToFirestore(newProduct);
-    showDialog.value = false; // Close the dialog after adding
-    // Reset newProduct object for next use
-    newProduct.data.name = "";
-    newProduct.data.description = "";
-    newProduct.data.price = 0;
-    newProduct.data.rating = 0;
-    newProduct.data.stock = 0;
+    const productData = {
+      name: newProduct.value.name,
+      image: newProduct.value.image,
+      rating: newProduct.value.rating,
+      description: newProduct.value.description,
+      price: Number(newProduct.value.price),
+      stock: Number(newProduct.value.stock),
+      category: newProduct.value.category
+    };
+
+    try {
+      const newProduct = doc(collection(db, "products"));
+      await setDoc(newProduct, productData);
+      console.log("Product added with ID:", newProduct.id);
+      showDialog.value = false;
+    } catch (error) {
+      console.error("Error adding product: ", error);
+    }
   }
 };
 
