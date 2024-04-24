@@ -9,18 +9,20 @@ import {
   addDoc,
   doc,
   updateDoc,
+  deleteDoc,
+  setDoc,
 } from "firebase/firestore";
 
 export const useProductStore = defineStore("ProductStore", {
   state: () => ({
     products: [] as ProductDoc[],
-    allProducts: [] as ProductDoc[],
+    //allProducts: [] as ProductDoc[],
   }),
   actions: {
     async init() {
       //set products
       this.products = initProducts;
-      this.allProducts = initProducts;
+      //this.allProducts = initProducts;
 
       //get producys from database
       const productsCollected = collection(db, "products");
@@ -31,8 +33,10 @@ export const useProductStore = defineStore("ProductStore", {
       if (productsStored.empty) {
         //set products to init products
         await Promise.all(
-          initProducts.map((product) => addDoc(productsCollected, product))
-        );
+          initProducts.map((product) => {
+            const productRef = doc(db, `products/${product.id}`);
+            setDoc(productRef, product.data);
+          }));
 
         this.products = initProducts; // Update Pinia state
       } else {
@@ -67,13 +71,15 @@ export const useProductStore = defineStore("ProductStore", {
         console.error("Error adding document: ", error);
       }
     },
-    async removeItemFromFirestore(item: ProductDoc) {
+    async removeItemFromFirestore(productId: string) {
       try {
-        const productDoc = doc(db, "products", item.id);
+        const productDoc = doc(db, "products", productId);
         await deleteDoc(productDoc);
+
         this.products = this.products.filter(
-          (product) => product.id !== item.id
+          (product) => product.id !== productId
         );
+
       } catch (error) {
         console.error("Error deleting document: ", error);
       }

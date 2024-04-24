@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import { useProductStore } from "./stores/ProductStore";
 import { ProductDoc } from "./types/product";
 
@@ -56,7 +56,7 @@ const links = ref([
 const productStore = useProductStore();
 
 const showDialog = ref(false);
-const newProduct: ProductDoc = {
+const newProduct = reactive<ProductDoc>({
   id: "", 
   data: {
     name: "",
@@ -65,7 +65,7 @@ const newProduct: ProductDoc = {
     rating: 0,
     stock: 0,
   },
-};
+});
 
 const addProduct = async () => {
   showDialog.value = true; // Open the dialog

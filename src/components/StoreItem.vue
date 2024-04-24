@@ -111,6 +111,7 @@ const props = defineProps<{
 const editing = ref(false);
 const editedProduct = ref<ProductDoc>(props.product);
 
+
 // Define component methods
 const createItem = async (product: ProductDoc) => {
   const confirmed = confirm("Are you sure you want to add this item?");
@@ -119,10 +120,10 @@ const createItem = async (product: ProductDoc) => {
   }
 };
 
-const deleteItem = async (productId: string) => {
+const deleteItem = async () => {
   const confirmed = confirm("Are you sure you want to delete this item?");
   if (confirmed) {
-    await useProductStore().removeItemFromFirestore(productId);
+    productStore.removeItemFromFirestore(props.product.id);
   }
 };
 
