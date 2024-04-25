@@ -30,7 +30,6 @@
             half-increments
             disabled
             size="15"
-            @input="onRatingChange"
           >
           </v-rating>
 
@@ -83,7 +82,7 @@
         <v-card-actions>
           <template v-if="!editing">
             <!-- Display action buttons when not editing -->
-            <v-btn color="primary" @click="deleteItem(product)">Delete</v-btn>
+            <v-btn color="primary" @click="deleteItem">Delete</v-btn>
             <v-btn color="primary" @click="toggleEdit">Modify</v-btn>
           </template>
           <template v-else>
@@ -113,12 +112,14 @@ const editedProduct = ref<ProductDoc>(props.product);
 
 
 // Define component methods
+/*
 const createItem = async (product: ProductDoc) => {
   const confirmed = confirm("Are you sure you want to add this item?");
   if (confirmed) {
     await useProductStore().addItemToFirestore(product);
   }
 };
+*/
 
 const deleteItem = async () => {
   

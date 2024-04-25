@@ -1,9 +1,8 @@
 import { defineStore } from "pinia";
-import { Product, ProductDoc } from "../types/product";
+import { ProductDoc } from "../types/product";
 import { initProducts } from "../data-init";
 import db from "../firestore";
 import {
-  Firestore,
   collection,
   getDocs,
   addDoc,
@@ -46,8 +45,8 @@ export const useProductStore = defineStore("ProductStore", {
           return {
             id: doc.id,
             data: doc.data(),
-          } as ProductDoc;
-        });
+          } 
+        })as ProductDoc[];
       }
     },
     filterByCategory(category: string) {
@@ -88,6 +87,7 @@ export const useProductStore = defineStore("ProductStore", {
       try {
         const productDoc = doc(db, "products", updatedProduct.id);
         await updateDoc(productDoc, updatedProduct.data);
+        let index = this.products.indexOf(updatedProduct);
         if (index !== -1) {
           this.products[index].data = updatedProduct.data;
         }
