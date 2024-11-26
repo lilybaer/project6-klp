@@ -1,27 +1,22 @@
-# *Store Websites | School Project*
-This project showcases my work in building and enhancing online store websites using various web technologies and frameworks. It involved creating multiple versions of online store websites with dynamic and interactive components.
+# *Store Website Project*
+This project is a store website built using modern web technologies. It allows users to browse products, view product details, and leave reviews. The website leverages Firebase for managing product stock and storing user reviews.
 
 ## Features
-### Static Online Store
-Technologies Used: HTML, CSS, Node.js, Docker
+Firebase Integration: Uses Firebase to store product stock and manage real-time data.
 
-Built a static online store structured with HTML and styled using CSS Grid and Flexbox for responsive page layouts.
+Product Catalog: Displays a list of products, with details like price and description.
 
-Deployed the store using GitHub Pages and set up the environment using Node.js within Docker containers.
+Product Reviews: Users can leave reviews for products, with ratings and comments.
 
-### Dynamic Beverage Component
-Technologies Used: Vue.js, TypeScript, Pinia
+Responsive Design: The website is fully responsive, ensuring a smooth experience on both desktop and mobile devices.
 
-Created an interactive beverage customization component using Vue.js. Users can customize coffee recipes by selecting different creamers, syrups, and bases.
+Real-time Updates: Firebase allows for real-time updates to the product stock and reviews without needing to refresh the page.
 
-The component visually updates in real-time, with dynamic color changes reflecting user choices.
+## Technologies Used
+HTML, CSS, and JavaScript: Core technologies for building the structure, design, and interactivity of the website.
 
-### State Management with Pinia
-Used Pinia to manage the application’s state and store user-selected beverage configurations, enabling users to save and retrieve custom coffee recipes.
+Firebase: Used for storing product stock and managing product reviews.
 
-### Advanced JavaScript Features
-Event Handling: Implemented event handling techniques to enhance user interaction.
+Firebase Authentication: Allows users to sign in and leave reviews.
 
-TypeScript Modules: Utilized TypeScript modules for better structure and maintainability of the codebase.
-
-High Order Functions: Used high order functions to enhance the functionality and reusability of different components within the store
+CSS Grid and Flexbox: Used for creating a responsive layout.
